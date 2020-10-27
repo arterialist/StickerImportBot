@@ -34,13 +34,24 @@ async def link_handler(event: Message):
 
     os.mkdir(temp_directory_path)
 
+    stickerset_name: str = None
     for sticker_id in range(starting_id, starting_id + 42):
-        image_path = await download_image(sticker_link.replace(str(starting_id), str(sticker_id)), str(sticker_id), temp_directory_path)
-        await add_outline(image_path)
-        image_path = await convert_to_webp(temp_directory_path, str(sticker_id), "png")
 
-        await bot.send_sticker(event.chat.id, InputFile(image_path))
+        png_image_path = await download_image(sticker_link.replace(str(starting_id), str(sticker_id)), str(sticker_id), temp_directory_path)
+        await add_outline(png_image_path)
+        webp_image_path = await convert_to_webp(temp_directory_path, str(sticker_id), "png")
+        png_sticker = InputFile(png_image_path)
+        webp_sticker = InputFile(webp_image_path)
+
+        if not stickerset_name:
+            stickerset_name = f"set_{starting_id}_{event.from_user.id}_by_StickerImporterBot"
+            await bot.create_new_sticker_set(event.from_user.id, stickerset_name, "Sticker pack by @StickerImporterBot", "😁", png_sticker)
+        else:
+            await bot.add_sticker_to_set(event.from_user.id, stickerset_name, "😁", png_sticker)
+
+        await bot.send_sticker(event.chat.id, webp_sticker)
     shutil.rmtree(temp_directory_path, ignore_errors=True)
+    await bot.send_message(event.chat.id, f"Sticker pack link: https://t.me/addstickers/{stickerset_name}")
 
 
 async def main():
