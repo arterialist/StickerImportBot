@@ -1,6 +1,7 @@
 import asyncio
 import os
 import re
+import shutil
 
 from PIL import Image
 from aiogram import Bot, Dispatcher
@@ -58,6 +59,7 @@ async def link_handler(event: Message):
         image_path = await convert_to_webp(temp_directory_path, str(sticker_id), "png")
 
         await bot.send_sticker(event.chat.id, InputFile(image_path))
+    shutil.rmtree(temp_directory_path, ignore_errors=True)
 
 
 async def main():
