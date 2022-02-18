@@ -5,6 +5,7 @@ import shutil
 
 from aiogram import Bot, Dispatcher
 from aiogram.types import Message, InputFile
+from aiogram.utils.exceptions import TelegramAPIError
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -52,7 +53,7 @@ async def link_handler(event: Message):
     stickerpack_sticker_links = list(
         sorted(
             map(
-                lambda img: img.get_attribute("src").replace("64", "512").replace("128", "512").replace("256", "512"), stickerpack_sticker_links
+                lambda img: img.get_attribute("src").replace("-64", "-512").replace("-128", "-512").replace("-256", "-512"), stickerpack_sticker_links
             )
         )
     )
@@ -77,7 +78,10 @@ async def link_handler(event: Message):
             stickerset_name = f"set_{starting_id}_{event.from_user.id}_by_StickerImporterBot"
             await bot.create_new_sticker_set(event.from_user.id, stickerset_name, f"{stickerpack_name} VK by @StickerImporterBot", "😁", png_sticker)
         else:
-            await bot.add_sticker_to_set(event.from_user.id, stickerset_name, "😁", png_sticker)
+            try:
+                await bot.add_sticker_to_set(event.from_user.id, stickerset_name, "😁", png_sticker)
+            except TelegramAPIError:
+                await bot.add_sticker_to_set(event.from_user.id, stickerset_name, "😁", png_sticker)
 
         await bot.send_sticker(event.chat.id, webp_sticker)
     shutil.rmtree(temp_directory_path, ignore_errors=True)
