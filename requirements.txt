@@ -1,3 +1,7 @@
 aiogram==2.10.1
-Pillow==8.0.1
-requests==2.24.0
+Pillow==9.0.1
+requests==2.27.1
+aiohttp==3.8.1
+beautifulsoup4~=4.10.0
+pip==22.0.3
+selenium==4.1.0
